@@ -3,6 +3,8 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using SFB;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
@@ -13,27 +15,26 @@ public class UiGenerator : MonoBehaviour
     public ContentContainer originContentContainer;
     public RectTransform contentContainer;
 
-    public int horizontalRes = 1920;
+    // public int horizontalRes = 1920;
+    public int horizontalRes = Screen.width;
     // Specify the folder path where your PNG files are located
     private string folderPath = @"D:\Pictures\Test";
-    private int contentFloor = 0;
 
     void Start()
     {
-        contentContainer.sizeDelta = new Vector2(horizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
-        // // Launch file browser to select a new directory
-        // folderPath = OpenFileBrowser();
-        //
-        // // Check if the folderPath is valid
-        // if (!string.IsNullOrEmpty(folderPath))
-        // {
-        //     CheckForSubFolders(folderPath, ref originContentContainer);
-        //     contentContainer.sizeDelta = new Vector2(0, contentFloor);
-        // }
-        // else
-        // {
-        //     Debug.LogError("No folder selected.");
-        // }
+        // contentContainer.sizeDelta = new Vector2(horizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
+        // Launch file browser to select a new directory
+        folderPath = OpenFileBrowser();
+        
+        // Check if the folderPath is valid
+        if (!string.IsNullOrEmpty(folderPath))
+        {
+            contentContainer.sizeDelta = new Vector2(horizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
+        }
+        else
+        {
+            Debug.LogError("No folder selected.");
+        }
     }
 
     string OpenFileBrowser()
