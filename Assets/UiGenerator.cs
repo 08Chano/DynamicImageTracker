@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
 using SFB;
-using Unity.VisualScripting;
-using UnityEditor;
+using TMPro;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
@@ -14,30 +14,57 @@ public class UiGenerator : MonoBehaviour
     public ContentContainer ContentContainerPrefab;
     public ContentContainer originContentContainer;
     public RectTransform contentContainer;
+    public GameObject menuContainer;
 
     // public int horizontalRes = 1920;
-    public int horizontalRes = Screen.width;
+    public const int HorizontalRes = 0;
+
+    private int _imageSize = 300;
+
     // Specify the folder path where your PNG files are located
     private string folderPath = @"D:\Pictures\Test";
 
-    void Start()
+    [SerializeField] private Button refreshCollection;
+    [SerializeField] private TMP_InputField imageSizeInput;
+
+    private void Start()
     {
         // contentContainer.sizeDelta = new Vector2(horizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
         // Launch file browser to select a new directory
         folderPath = OpenFileBrowser();
-        
+
         // Check if the folderPath is valid
         if (!string.IsNullOrEmpty(folderPath))
         {
-            contentContainer.sizeDelta = new Vector2(horizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
+            contentContainer.sizeDelta =
+                new Vector2(HorizontalRes, CheckForSubFolders(folderPath, ref originContentContainer));
         }
         else
         {
             Debug.LogError("No folder selected.");
         }
+
+        refreshCollection.onClick.AddListener(UpdateLayout);
+        menuContainer.SetActive(false);
+        imageSizeInput.text = _imageSize.ToString();
     }
 
-    string OpenFileBrowser()
+    private void UpdateLayout()
+    {
+        if (_imageSize == Convert.ToInt32(imageSizeInput.text))
+            return;
+
+        _imageSize = Convert.ToInt32(imageSizeInput.text);
+        originContentContainer.UpdateRectAndImageSizes(_imageSize, Screen.width);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            menuContainer.SetActive(!menuContainer.activeSelf);
+    }
+
+    private string OpenFileBrowser()
     {
         // Open a file browser to select a directory
         var paths = StandaloneFileBrowser.OpenFolderPanel("Select Folder", "", false);
@@ -53,7 +80,7 @@ public class UiGenerator : MonoBehaviour
         return string.Empty;
     }
 
-    int CheckForSubFolders(string parentFolderPath, ref ContentContainer parentContainer)
+    private int CheckForSubFolders(string parentFolderPath, ref ContentContainer parentContainer)
     {
         parentContainer.gameObject.name = Path.GetFileName(parentFolderPath);
         parentContainer.TitleText.text = Path.GetFileName(parentFolderPath);
@@ -73,10 +100,11 @@ public class UiGenerator : MonoBehaviour
                 foreach (string subDirectory in subDirectories)
                 {
                     var currentContainer = Instantiate(ContentContainerPrefab, parentContainer.GroupView.transform);
+                    parentContainer.ChildContainers.Add(currentContainer);
                     containerHeight += CheckForSubFolders(subDirectory, ref currentContainer);
                 }
 
-                parentContainer.GroupView.sizeDelta = new Vector2(horizontalRes, containerHeight);
+                parentContainer.GroupView.sizeDelta = new Vector2(HorizontalRes, containerHeight);
             }
 
             containerHeight += LoadSprites(ref parentContainer, parentFolderPath);
@@ -86,7 +114,7 @@ public class UiGenerator : MonoBehaviour
             Debug.Log("The parent folder does not exist.");
         }
 
-        parentContainer.RectTransform.sizeDelta = new Vector2(horizontalRes, containerHeight);
+        parentContainer.RectTransform.sizeDelta = new Vector2(HorizontalRes, containerHeight);
         return containerHeight;
     }
 
@@ -103,9 +131,10 @@ public class UiGenerator : MonoBehaviour
 
             if (imageFiles.Count > 0)
             {
-                int ceilToInt = imageFiles.Count % 6 == 0 ? Mathf.CeilToInt(imageFiles.Count / 6) : Mathf.CeilToInt(imageFiles.Count / 6) + 1;
-                int gridHeight =  40 + (310 * ceilToInt);
-                currentContainer.GridView.sizeDelta = new Vector2(horizontalRes, gridHeight);
+                // Caches images within the container.
+                currentContainer.ImageCount = imageFiles.Count;
+
+                int gridHeight = currentContainer.UpdateRectSize(_imageSize, Screen.width);
 
                 // Load and set each PNG file as the background of the Toggle UI element
                 foreach (string filePath in imageFiles)
@@ -127,14 +156,14 @@ public class UiGenerator : MonoBehaviour
                 return gridHeight;
             }
 
-            currentContainer.GridView.sizeDelta = new Vector2(horizontalRes, 0);
+            currentContainer.GridView.sizeDelta = new Vector2(HorizontalRes, 0);
         }
 
         Debug.LogError("Folder does not exist: " + folderPath);
         return 0;
     }
 
-    private Sprite LoadSpriteFromFilePath(string filePath)
+    private static Sprite LoadSpriteFromFilePath(string filePath)
     {
         // Load the PNG file into a byte array
         byte[] fileData = File.ReadAllBytes(filePath);

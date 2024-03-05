@@ -585,10 +585,10 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 300}
-  m_Pivot: {x: 0, y: 1}
+  m_SizeDelta: {x: 0, y: 300}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &336261880064162193
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -646,7 +646,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 200
   m_Viewport: {fileID: 336261880141183639}
   m_HorizontalScrollbar: {fileID: 336261879966189038}
   m_VerticalScrollbar: {fileID: 336261879879232899}
@@ -673,6 +673,7 @@ MonoBehaviour:
   RectTransform: {fileID: 336261880064162206}
   GridView: {fileID: 1065371404567513525}
   GroupView: {fileID: 4101254266411310760}
+  GridLayout: {fileID: 5579212396386962702}
 --- !u!1 &336261880141183638
 GameObject:
   m_ObjectHideFlags: 0
@@ -711,7 +712,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: -17}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &336261880141183626
 CanvasRenderer:
